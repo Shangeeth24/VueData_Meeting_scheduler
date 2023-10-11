@@ -3,11 +3,11 @@ const mongoose = require('mongoose')
 const bookingSchema = new mongoose.Schema({
     meetingId :{
         type : Number,
-        required : "Meeting ID is required ",
+        // required : "Meeting ID is required ",
         
     },
-    room :{
-        type:String,
+    roomId :{
+        type:Number,
         required :"select room name"
 
     },
@@ -19,7 +19,7 @@ const bookingSchema = new mongoose.Schema({
         type:Date,
         required : "End Time  is required "
     },
-    organizerName :{
+    employeeId :{
         type:String,
         required : "Enter your ID eg:'VD123' "
     }

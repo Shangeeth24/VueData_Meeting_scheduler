@@ -84,14 +84,14 @@ html(lang="en")
         h1 MEETING BOOKING
         form(id="bookingForm")
           div.mb-3
-            label.form-label(for="meetingId") Meeting ID
-            input#meetingId.form-control(type="number", name="meetingId")
+            //- label.form-label(for="meetingId") Meeting ID
+            //- input#meetingId.form-control(type="number", name="meetingId")
           div.mb-3
-            label.form-label(for="room") Room
-            select#room.form-select(name="room")
-              option(value="warroom") War Room
-              option(value="cubicalroom") Cubical Room
-              option(value="Inspiration Chamber") Inspiration Chamber
+            label.form-label(for="roomId") Room
+            select#roomId.form-select(name="roomId")
+              option(value=1) War Room
+              option(value=2) Cubical Room
+              option(value=3) Inspiration Chamber
 
           div.mb-3
             label.form-label(for="starttime") Start Time
@@ -102,8 +102,8 @@ html(lang="en")
             input#endtime.form-control(type="datetime-local", name="endtime")
 
           div.mb-3
-            label.form-label(for="organizerName") Organizer Name
-            input#organizerName.form-control(type="text", name="organizerName")
+            label.form-label(for="employeeId") Organizer Name
+            input#employeeId.form-control(type="text", name="employeeId")
 
           
           div.row.gx-2.gy-3
@@ -121,26 +121,26 @@ html(lang="en")
     script.
 
       function clearFunction() {
-        document.getElementById('meetingId').value = '';
-        document.getElementById('room').value = 'War Room'; 
+        //- document.getElementById('meetingId').value = '';
+        document.getElementById('roomId').value = 'War Room'; 
         document.getElementById('starttime').value = '';
         document.getElementById('endtime').value = '';
-        document.getElementById('organizerName').value = '';
+        document.getElementById('employeeId').value = '';
 
       }
       function insertFunction() {
-        const meetingId = document.getElementById('meetingId').value;
-        const room = document.getElementById('room').value;
+        //- const meetingId = document.getElementById('meetingId').value;
+        const roomId = document.getElementById('roomId').value;
         const startTime = document.getElementById('starttime').value;
         const endTime = document.getElementById('endtime').value;
-        const organizerName = document.getElementById('organizerName').value;
+        const employeeId = document.getElementById('employeeId').value;
 
         const formData = {
-          meetingId,
-          room,
+          //- meetingId,
+          roomId,
           startTime,
           endTime,
-          organizerName
+          employeeId
         };
 
         fetch("/insertBooking", {
