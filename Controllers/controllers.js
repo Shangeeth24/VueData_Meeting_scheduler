@@ -1,5 +1,7 @@
 const booking = require('../Model/booking')
 const meetingIdGenerate = require('../Model/meetingId')
+const room = require('../Model/room')
+const moment = require('moment');
 
 exports.insertBooking = async (req, res) => {
     try {
@@ -18,6 +20,20 @@ exports.insertBooking = async (req, res) => {
             incrementedId = 1;
         } else {
             incrementedId = sequence.meetingId;
+        }
+        const { startTime, endTime } = req.body;
+
+        const start = moment(startTime);
+        const end = moment(endTime);
+      
+        if (end.isBefore(start)) {
+          return res.status(400).json({ message: "End time should be after start time" });
+        }
+      
+        const duration = moment.duration(end.diff(start)).asHours();
+        
+        if (duration > 30) {
+          return res.status(400).json({ message: "Meeting duration exceeds 9 hours" });
         }
 
         console.log("incrementedId : " + incrementedId);
@@ -45,3 +61,13 @@ exports.insertBookingView = (req, res) => {
 exports.bookingsView =(req, res) => {
     res.render("viewBookings")
 }
+
+
+exports.roomName = async (req, res) => {
+    try {
+      const rooms = await room.find({});
+      res.json(rooms);
+    } catch (err) {
+      res.status(500).send("Internal Server Error");
+    }
+  }
