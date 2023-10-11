@@ -18,9 +18,7 @@ html(lang="en")
           div.mb-3
             label.form-label(for="roomId") Room
             select#roomId.form-select(name="roomId")
-              option(value=1) War Room
-              option(value=2) Inspiration Chamber
-              option(value=3) Cubical Room
+              
 
           div.mb-3
             label.form-label(for="starttime") Start Time
@@ -32,7 +30,10 @@ html(lang="en")
 
           div.mb-3
             label.form-label(for="employeeId") Organizer Name
-            input#employeeId.form-control(type="text", name="employeeId")
+            select#employeeId.form-select(name="employeeId")
+
+
+
 
           
           div.row.gx-2.gy-3
@@ -75,7 +76,26 @@ html(lang="en")
         })
       }
 
-      window.onload = fetchRooms;
+      async function fetchEmployees() {
+        const response = await fetch('http://127.0.0.1:3112/getEmployees');
+        const employees = await response.json();
+        const selectElement = document.getElementById('employeeId');
+        while (selectElement.firstChild) {
+          selectElement.removeChild(selectElement.firstChild);
+        }
+        employees.forEach((employee) => {
+          const optionElement = document.createElement('option');
+          optionElement.value = employee.employeeId;
+          optionElement.textContent = employee.employeeId;
+          selectElement.appendChild(optionElement);
+          })
+      }
+        
+
+      window.onload = function(){
+        fetchRooms();
+        fetchEmployees();
+      };
 
         
 

@@ -1,6 +1,7 @@
 const booking = require('../Model/booking')
 const meetingIdGenerate = require('../Model/meetingId')
 const room = require('../Model/room')
+const employee = require('../Model/employee')
 const moment = require('moment');
 
 exports.insertBooking = async (req, res) => {
@@ -67,6 +68,14 @@ exports.roomName = async (req, res) => {
     try {
       const rooms = await room.find({});
       res.json(rooms);
+    } catch (err) {
+      res.status(500).send("Internal Server Error");
+    }
+  }
+exports.employeeName = async (req, res) => {
+    try {
+      const employees = await employee.find({});
+      res.json(employees);
     } catch (err) {
       res.status(500).send("Internal Server Error");
     }

@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const roomSchema = new mongoose.Schema({
   roomId: {
     type: Number,
+    unique: true
   },
   room: {
     type: String,
