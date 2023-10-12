@@ -7,21 +7,7 @@ const moment = require('moment');
 exports.insertBooking = async (req, res) => {
     try {
         // Generate the meeting ID
-        let sequence = await meetingIdGenerate.findOneAndUpdate(
-            { meeting: "justForChecking" },
-            { "$inc": { "meetingId": 1 } },
-            { new: true }
-        );
-
-        let incrementedId;
-
-        if (sequence === null) {
-            const firstTimeValue = new meetingIdGenerate({ meeting: "justForChecking", meetingId: 1 });
-            await firstTimeValue.save();
-            incrementedId = 1;
-        } else {
-            incrementedId = sequence.meetingId;
-        }
+       
         const { startTime, endTime } = req.body;
 
         const start = moment(startTime);
@@ -40,6 +26,21 @@ exports.insertBooking = async (req, res) => {
         console.log("incrementedId : " + incrementedId);
 
         // Prepare the new booking data
+        let sequence = await meetingIdGenerate.findOneAndUpdate(
+            { meeting: "justForChecking" },
+            { "$inc": { "meetingId": 1 } },
+            { new: true }
+        );
+
+        let incrementedId;
+
+        if (sequence === null) {
+            const firstTimeValue = new meetingIdGenerate({ meeting: "justForChecking", meetingId: 1 });
+            await firstTimeValue.save();
+            incrementedId = 1;
+        } else {
+            incrementedId = sequence.meetingId;
+        }
         let newBookingData = req.body;
         newBookingData.meetingId = incrementedId;
 
@@ -72,6 +73,9 @@ exports.roomName = async (req, res) => {
       res.status(500).send("Internal Server Error");
     }
   }
+
+
+  
 exports.employeeName = async (req, res) => {
     try {
       const employees = await employee.find({});
