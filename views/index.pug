@@ -1,4 +1,3 @@
-
 html(lang="en")
   head
     meta(charset="UTF-8")
@@ -30,6 +29,7 @@ html(lang="en")
           th Organizer Name
           th Start Time
           th End Time
+          th Actions
         each data, index in datas 
           tr
             td= index + 1 
@@ -38,3 +38,28 @@ html(lang="en")
             td= data.employeeName 
             td= data.startTime 
             td= data.endTime 
+            td
+              button Update 
+              br
+              button(onclick=`deleteFunction('${data.meetingId}')`) Delete 
+
+    script.
+      function deleteFunction(meetingId) {
+        if (confirm("Are you sure you want to delete this entry?")) {
+          fetch(`/delete/${meetingId}`, {
+            method: 'DELETE',
+          })
+            .then((response) => {
+              if (response.ok) {
+                alert("Booking deleted successfully");
+                location.reload(); 
+              } else {
+                alert("Failed to delete booking");
+              }
+            })
+            .catch((error) => {
+              console.error("Error deleting booking:", error);
+              alert("Internal Server Error");
+            });
+        }
+      }

@@ -59,12 +59,6 @@ exports.insertBookingView = (req, res) => {
     res.render("booking")
 }
 
-
-exports.bookingsView =(req, res) => {
-    res.render("viewBookings")
-}
-
-
 exports.roomName = async (req, res) => {
     try {
       const rooms = await room.find({});
@@ -143,7 +137,7 @@ exports.week = async (req, res, next) => {
     });
   } catch (err) {
     console.log(err);
-    // next(err);
+    next(err);
   }
 }
 
@@ -171,10 +165,31 @@ exports.month = async (req, res, next) => {
   } 
   catch (err) {
     console.log(err);
-    // next(err);
+    next(err);
   }
 }
 
+
+//delete
+
+exports.delete_entry = async (req, res) => {
+  try {
+      const meetingId = req.params.id;
+
+      const meetingToDelete = await booking.findOne({ meetingId: meetingId });
+
+      if (!meetingToDelete) {
+          return res.status(404).json({ message: "Booking not found" });
+      }
+
+      await meetingToDelete.deleteOne({ meetingId: meetingId });
+
+      res.status(200).json({ message: "Booking deleted successfully" });
+  } catch (error) {
+      console.error("Error deleting booking:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 
 
 
