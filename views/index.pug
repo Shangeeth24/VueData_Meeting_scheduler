@@ -1,0 +1,40 @@
+
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    link(rel='stylesheet', href='/style1.css') 
+    title Document
+  body
+    .nav
+      .header-left
+        img(src="https://www.vuedata.com/assets/vuedata%20light.png", alt="")
+      .header-right
+        a(href="/home")= nav1
+        a(href="/Booking")= nav2
+    #home
+      .header-left
+        h1= con1
+      .header-right
+        h1= con2
+        #frame
+          a(href="/today") Today
+          a(href="/week") Weekly
+          a(href="/home") Monthly
+    #table
+      table
+        tr
+          th S.No
+          th Meeting ID
+          th Room Name
+          th Organizer Name
+          th Start Time
+          th End Time
+        each data, index in datas 
+          tr
+            td= index + 1 
+            td= data.meetingId 
+            td= data.roomName 
+            td= data.employeeName 
+            td= data.startTime 
+            td= data.endTime 

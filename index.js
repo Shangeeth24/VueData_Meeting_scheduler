@@ -11,10 +11,10 @@ const routes = require("./Routes/routes.js");
 dotenv.config();
 
 app.set("view engine", "pug"); 
-app.set("views", "/Users/USER/Desktop/VueData_Meeting_scheduler/views");
+app.set("views", "/Users/USER/Documents/VueData_Meeting_scheduler/views");
 
 app.use(cors()); 
-app.use(express.static("/Users/USER/Desktop/VueData_Meeting_scheduler/public"));
+app.use(express.static("C:/Users/USER/Documents/VueData_Meeting_scheduler/public"));
 
 const portNumber = process.env.PORT || 3113;
 
@@ -24,4 +24,5 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/", routes) 
 
-app.listen(portNumber, () => console.log(`Node Server run in http://127.0.0.1:${portNumber}/booking !`));
+app.listen(portNumber, () => console.log(`Node Server run in http://127.0.0.1:${portNumber}/home !`));
+

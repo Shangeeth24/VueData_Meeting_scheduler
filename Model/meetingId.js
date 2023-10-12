@@ -2,15 +2,10 @@ const mongoose = require('mongoose')
 
 const meetingIdGenerate = new mongoose.Schema({
     meeting :{
-        type : String,
-       
+        type : String,  
     },
-
-
     meetingId :{
-        type : Number,
-       
-        
+        type : Number,         
     }
 })
 
