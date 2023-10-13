@@ -1,10 +1,9 @@
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
-const expressvalidator = require("express-validator");
 const dotenv = require("dotenv");
 const dbConfig = require("./Config/mongoDBConfig.js");
-const cors = require("cors");
+
 
 const routes = require("./Routes/routes.js");
 
@@ -13,7 +12,7 @@ dotenv.config();
 app.set("view engine", "pug"); 
 app.set("views", "/Users/USER/Documents/VueData_Meeting_scheduler/views");
 
-app.use(cors()); 
+
 app.use(express.static("C:/Users/USER/Documents/VueData_Meeting_scheduler/public"));
 
 const portNumber = process.env.PORT || 3113;

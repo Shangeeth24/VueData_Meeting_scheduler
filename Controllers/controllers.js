@@ -5,54 +5,79 @@ const employee = require('../Model/employee')
 const data = require('../Service/lookup.js');
 const moment = require("moment")
 
+
 exports.insertBooking = async (req, res) => {
-    try {
-        // Generate the meeting ID
-        let sequence = await meetingIdGenerate.findOneAndUpdate(
-            { meeting: "justForChecking" },
-            { "$inc": { "meetingId": 1 } },
-            { new: true }
-        );
+  try {
+    // Generate the meeting ID
+    const { startTime, endTime } = req.body;
 
-        let incrementedId;
+    const start = moment(startTime);
+    const end = moment(endTime);
 
-        if (sequence === null) {
-            const firstTimeValue = new meetingIdGenerate({ meeting: "justForChecking", meetingId: 1 });
-            await firstTimeValue.save();
-            incrementedId = 1;
-        } else {
-            incrementedId = sequence.meetingId;
-        }
-        const { startTime, endTime } = req.body;
+    // Validation for overlapping bookings
+    const overlappingBooking = await booking.findOne({
+      $or: [
+        { startTime: { $gte: start.toDate(), $lt: end.toDate() } },
+        { endTime: { $gt: start.toDate(), $lte: end.toDate() } },
+        { startTime: { $lt: start.toDate() }, endTime: { $gt: end.toDate() } },
+      ],
+    });
 
-        const start = moment(startTime);
-        const end = moment(endTime);
-      
-        if (end.isBefore(start)) {
-          return res.status(400).json({ message: "End time should be after start time" });
-        }
-      
-        const duration = moment.duration(end.diff(start)).asHours();
-        
-        if (duration > 30) {
-          return res.status(400).json({ message: "Meeting duration exceeds 9 hours" });
-        }
-
-        console.log("incrementedId : " + incrementedId);
-
-        // Prepare the new booking data
-        let newBookingData = req.body;
-        newBookingData.meetingId = incrementedId;
-
-        var newBooking = new booking(newBookingData);
-        await newBooking.save();
-
-        res.status(200).send("Data received");
-    } catch (error) {
-        console.error("Error inserting booking:", error);
-        res.status(500).send("Internal Server Error");
+    if (overlappingBooking) {
+      console.log("overlapping exists");
+      res.status(400).send({
+        message: "Overlapping booking exists",
+      });
+      return;
     }
+
+    if (end.isBefore(start)) {
+      return res
+        .status(400)
+        .json({ message: "End time should be after start time" });
+    }
+
+    // Validation for duration
+    const duration = moment.duration(end.diff(start)).asHours();
+
+    if (duration > 9) {
+      return res
+        .status(400)
+        .json({ message: "Meeting duration exceeds 9 hours" });
+    }
+
+    let sequence = await meetingIdGenerate.findOneAndUpdate(
+      { meeting: "justForChecking" },
+      { $inc: { meetingId: 1 } },
+      { new: true }
+    );
+
+    let incrementedId;
+
+    if (sequence === null) {
+      const firstTimeValue = new meetingIdGenerate({
+        meeting: "justForChecking",
+        meetingId: 1,
+      });
+      await firstTimeValue.save();
+      incrementedId = 1;
+    } else {
+      incrementedId = sequence.meetingId;
+    }
+
+    let newBookingData = req.body;
+    newBookingData.meetingId = incrementedId;
+
+    var newBooking = new booking(newBookingData);
+    await newBooking.save();
+
+    res.status(200).send("Data received");
+  } catch (error) {
+    console.error("Error inserting booking:", error);
+    res.status(500).send("Internal Server Error");
+  }
 };
+
 
 
 exports.insertBookingView = (req, res) => {
@@ -99,17 +124,21 @@ exports.today = async (req, res, next) => {
     const filteredData = datas.filter(item => {
       return item.startTime >= startOfDay && item.startTime < endOfDay;
     });
+    console.log(filteredData);
 
     res.render('index', { 
       nav1: "Dashboard",
       nav2: "Book",
       con1: "MEETING DASHBOARD",
       con2: "Select Timeframe",
-      datas: filteredData 
+      select1: "Today",
+      select2: "Weekly",
+      select3: "Monthly",
+      datas: filteredData,
+      currentPath: '/today' 
     });
   } catch (err) {
     console.log(err);
-    // next(err);
   }
 }
 
@@ -133,11 +162,14 @@ exports.week = async (req, res, next) => {
       nav2: "Book",
       con1: "MEETING DASHBOARD",
       con2: "Select Timeframe",
-      datas: filteredData 
+      select1: "Today",
+      select2: "Weekly",
+      select3: "Monthly",
+      datas: filteredData,
+      currentPath: '/week' 
     });
   } catch (err) {
     console.log(err);
-    next(err);
   }
 }
 
@@ -160,12 +192,15 @@ exports.month = async (req, res, next) => {
       nav2: "Book",
       con1: "MEETING DASHBOARD",
       con2: "Select Timeframe",
-      datas: filteredData 
+      select1: "Today",
+      select2: "Weekly",
+      select3: "Monthly",
+      datas: filteredData,
+      currentPath: '/home'
     });
   } 
   catch (err) {
     console.log(err);
-    next(err);
   }
 }
 
@@ -190,6 +225,7 @@ exports.delete_entry = async (req, res) => {
       res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 
 

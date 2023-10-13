@@ -9,22 +9,24 @@ html(lang="en")
       .header-left
         img(src="https://www.vuedata.com/assets/vuedata%20light.png", alt="")
       .header-right
-        a(href="/home")= nav1
-        a(href="/Booking")= nav2
+        a(href="/home", class=(currentPath === '/home' ? 'active' : ''))= nav1
+        a(href="/Booking", class=(currentPath === '/Booking' ? 'active' : ''))= nav2
+
+
     #home
       .header-left
         h1= con1
       .header-right
         h1= con2
         #frame
-          a(href="/today") Today
-          a(href="/week") Weekly
-          a(href="/home") Monthly
+          a(href="/today",class=(currentPath === '/today' ? 'active' : ''))= select1
+          a(href="/week",class=(currentPath === '/week' ? 'active' : ''))= select2
+          a(href="/home",class=(currentPath === '/home' ? 'active' : ''))= select3
     #table
       table
         tr
           th S.No
-          th Meeting ID
+          //- th Meeting ID
           th Room Name
           th Organizer Name
           th Start Time
@@ -33,15 +35,17 @@ html(lang="en")
         each data, index in datas 
           tr
             td= index + 1 
-            td= data.meetingId 
+            //- td= data.meetingId 
             td= data.roomName 
             td= data.employeeName 
-            td= data.startTime 
-            td= data.endTime 
             td
-              button Update 
+              | #{new Date(data.startTime).toLocaleString()}
+            td
+              | #{new Date(data.endTime).toLocaleString()}
+            td
+              #Updatebutton(onclick=`updateFunction('${data.meetingId}')`) Update 
               br
-              button(onclick=`deleteFunction('${data.meetingId}')`) Delete 
+              #Deletebutton(onclick=`deleteFunction('${data.meetingId}')`) Delete 
 
     script.
       function deleteFunction(meetingId) {
@@ -63,3 +67,36 @@ html(lang="en")
             });
         }
       }
+      function updateFunction(meetingId) {    
+       const updatedInfo = prompt("Enter updated information (e.g., room name, start time, end time, etc.)");
+
+      if (updatedInfo !== null) {
+      fetch(`/update/${meetingId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ updatedInfo }), 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then((response) => {
+          if (response.ok) {
+            alert("Booking updated successfully");
+            location.reload(); 
+          } else {
+            alert("Failed to update booking");
+          }
+        })
+        .catch((error) => {
+          console.error("Error updating booking:", error);
+          alert("Internal Server Error");
+        });
+      }
+      }
+
+
+      
+      
+
+      
+ 
+

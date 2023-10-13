@@ -44,9 +44,9 @@ img{
 }
 .header-right a:hover{
   text-align: right;
-  color: #0DF1DB;
+  color: #ffffff;
   padding: 20px;
-  text-decoration: none;
+  text-decoration: underline;
 }
 #frame{
   display: flex;
@@ -161,3 +161,29 @@ input[type="datetime-local"] {
   cursor: pointer;
   margin-right: 10px;
 }
+
+#Deletebutton{
+  background-color: white ;
+  color: #10161C;
+  font-family: var(--framer-font-family, Inter, Inter Placeholder, sans-serif);
+  border-radius: 5px;
+  padding: 5px;
+  cursor: pointer;
+}
+
+#Updatebutton{
+  background-color:#0DF1DB ;
+  color: #10161C;
+  font-family: var(--framer-font-family, Inter, Inter Placeholder, sans-serif);
+  border-radius: 5px;
+  padding: 5px;
+  cursor: pointer;
+}
+
+/* Add styles for the active navigation link */
+a.active {
+  color: #10161C;
+  background-color: #0DF1DB;
+  text-decoration: none;
+}
+

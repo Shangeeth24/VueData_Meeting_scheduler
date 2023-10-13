@@ -1,5 +1,5 @@
 const express = require('express')
-const {insertBooking,insertBookingView,roomName,employeeName,today,week,month,delete_entry}= require('../Controllers/controllers')
+const {insertBooking,insertBookingView,roomName,employeeName,today,week,month,delete_entry,update_entry}= require('../Controllers/controllers')
 
 const router = express.Router()
 
