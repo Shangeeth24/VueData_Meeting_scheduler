@@ -10,10 +10,10 @@ const routes = require("./Routes/routes.js");
 dotenv.config();
 
 app.set("view engine", "pug"); 
-app.set("views", "/Users/USER/Desktop/16-odt_rafi/VueData_Meeting_scheduler/views");
+app.set("views", "/Users/USER/Documents/Meeting_scheduler/views");
 
 
-app.use(express.static("C:/Users/USER/Desktop/16-odt_rafi/VueData_Meeting_scheduler/public"));
+app.use(express.static("C:/Users/USER/Documents/Meeting_scheduler/public"));
 
 const portNumber = process.env.PORT || 3113;
 

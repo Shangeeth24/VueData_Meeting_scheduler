@@ -115,6 +115,8 @@ exports.today = async (req, res, next) => {
       return item.startTime >= startOfDay && item.startTime < endOfDay;
     });
 
+    filteredData.sort((a, b) => a.startTime - b.startTime);
+
     res.render('index', { 
       nav1: "Dashboard",
       nav2: "Book",
