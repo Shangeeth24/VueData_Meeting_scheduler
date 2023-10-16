@@ -1,196 +1,3 @@
-//- html(lang="en")
-  head
-    meta(charset="UTF-8")
-    meta(name="viewport", content="width=device-width, initial-scale=1.0")
-    link(rel='stylesheet', href='/styles.css') 
-    link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css")
-    title Vuedata Dashboard
-  body
-    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
-      img.navbar-brand(src="https://www.vuedata.com/assets/vuedata%20light.png", alt="Vuedata Logo")
-      button.navbar-toggler(type="button", data-toggle="collapse", data-target="#navbarNav")
-        span.navbar-toggler-icon
-      div.collapse.navbar-collapse#navbarNav
-        ul.navbar-nav.ml-auto
-          li.nav-item
-            a.nav-link(href="/home", class=(currentPath === '/home' ? 'active' : ''))= nav1
-          li.nav-item
-            a.nav-link(href="/booking", class=(currentPath === '/Booking' ? 'active' : ''))= nav2
-    div.container.mt-5
-      h5.heading.text-center MEETING DASHBOARD
-      div.btn-group.mb-3
-        a.btn.btn-secondary(href="/today",class=(currentPath === '/today' ? 'active' : ''))= select1
-        a.btn.btn-secondary(href="/week",class=(currentPath === '/week' ? 'active' : ''))= select2
-        a.btn.btn-secondary(href="/month",class=(currentPath === '/month' ? 'active' : ''))= select3
-      table.table.table-dark
-        thead
-          tr
-            th S.No
-            th Room Name
-            th Organizer Name
-            th Start Time
-            th End Time
-            th Actions
-        tbody
-          each data, index in datas
-            tr
-              td= index + 1
-              td= data.roomName
-              td= data.employeeName
-              td|#{new Date(data.startTime).toLocaleString()}
-              td|#{new Date(data.endTime).toLocaleString()}
-              td
-                button.btn.btn-primary(type="button", data-toggle="modal", data-target="#updateModal") Update
-                
-                Deletebutton.btn.btn-danger(onclick=`deleteFunction('${data.meetingId}')`) Delete 
-                //- button.btn.btn-danger(type="button") Delete
-      #updateModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='updateModalLabel', aria-hidden='true')
-        .modal-dialog.modal-dialog-centered(role='document')
-          .modal-content
-            .modal-header
-              h5.modal-title#updateModalLabel Update Booking
-              button.close(type='button', data-dismiss='modal', aria-label='Close')
-                span(aria-hidden='true') &times;
-            .modal-body
-              form
-              .form-group
-                label(for="updateRoomId") Room
-                select#updateRoomId.form-select(name="updateRoomId")
-              .form-group
-                label(for="updateStartTime") Start Time
-                input#updateStartTime.form-control(type="datetime-local", name="updateStartTime", required=true)
-                label#updateStartTimeError(for="updateStartTimeError", style="color: red;")
-              .form-group
-                label(for="updateEndTime") End Time
-                input#updateEndTime.form-control(type="datetime-local", name="updateEndTime")
-                label#updateEndTimeError(for="updateEndTimeError", style="color: red;")
-              .form-group
-                label(for="updateEmployeeId") Organizer Name
-                select#updateEmployeeId.form-select(name="updateEmployeeId")
-            .modal-footer
-               button.btn.btn-third(type='button', data-dismiss='modal') Close
-               button.btn.btn-primary(type='button') Save Changes
-  script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js")
-  script(src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js")
-  script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
-  script.
-      let currentMeetingId = null;
-
-      async function getMeetingById(meetingId) {
-        try {
-          const response = await fetch(`/getMeeting/${meetingId}`);
-          if (response.ok) {
-            const data = await response.json();
-            return data;
-          } else {
-            console.error('Failed to fetch meeting.');
-            return null;
-          }
-        } catch (error) {
-          console.error('Error fetching meeting:', error);
-          return null;
-        }
-      }
-
-      function updateFunction() {
-        const roomId = document.getElementById('updateRoomId').value;
-        const startTime = document.getElementById('updateStartTime').value;
-        const endTime = document.getElementById('updateEndTime').value;
-        const employeeId = document.getElementById('updateEmployeeId').value;
-
-        const updatedData = {
-          roomId,
-          startTime,
-          endTime,
-          employeeId
-        };
-
-        fetch(`/update/${currentMeetingId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(updatedData)
-        })
-        .then(response => {
-          if (response.ok) {
-            alert('Booking updated successfully');
-            location.reload();
-          } else {
-            alert('Failed to update booking');
-          }
-        })
-        .catch(error => {
-          console.error("Error updating booking:", error);
-          alert("Internal Server Error");
-        });
-      }
-
-      async function openUpdateModal(meetingId) {
-        currentMeetingId = meetingId;
-        const meeting = await getMeetingById(meetingId);
-
-        if (meeting) {
-          document.getElementById('updateRoomId').value = meeting.roomId;
-          document.getElementById('updateStartTime').value = new Date(meeting.startTime).toLocaleString();
-          document.getElementById('updateEndTime').value = new Date(meeting.endTime).toLocaleString();
-          document.getElementById('updateEmployeeId').value = meeting.employeeId;
-          $('#updateModal').modal('show');
-        } else {
-          console.error("Meeting not found");
-        }
-      }
-
-      async function fetchRooms() {
-        const response = await fetch('http://127.0.0.1:3112/getRooms');
-        const rooms = await response.json();
-        const selectElement = document.getElementById('roomId');
-        while (selectElement.firstChild) {
-          selectElement.removeChild(selectElement.firstChild);
-        }
-        rooms.forEach((room) => {
-          const optionElement = document.createElement('option');
-          optionElement.value = room.roomId;
-          optionElement.textContent = room.room;
-          selectElement.appendChild(optionElement);
-        });
-      }
-
-      async function fetchEmployees() {
-        const response = await fetch('http://127.0.0.1:3112/getEmployees');
-        const employees = await response.json();
-        const selectElement = document.getElementById('employeeId');
-        while (selectElement.firstChild) {
-          selectElement.removeChild(selectElement.firstChild);
-        }
-        employees.forEach((employee) => {
-          const optionElement = document.createElement('option');
-          optionElement.value = employee.employeeId;
-          optionElement.textContent = employee.employeeId;
-          selectElement.appendChild(optionElement);
-        });
-      }
-
-      function deleteFunction(meetingId) {
-        if (confirm("Are you sure you want to delete this entry?")) {
-          fetch(`/delete/${meetingId}`, {
-            method: 'DELETE',
-          })
-          .then((response) => {
-            if (response.ok) {
-              alert("Booking deleted successfully");
-              location.reload();
-            } else {
-              alert("Failed to delete booking");
-            }
-          })
-          .catch((error) => {
-            console.error("Error deleting booking:", error);
-            alert("Internal Server Error");
-          });
-        }
-      }
-
 html(lang="en")
   head
     meta(charset="UTF-8")
@@ -210,7 +17,11 @@ html(lang="en")
           li.nav-item
             a.nav-link(href="/booking", class=(currentPath === '/Booking' ? 'active' : ''))= nav2
     div.container.mt-5
-      h5.heading.text-center MEETING DASHBOARD
+      h5.heading.text-center 
+        | MEETING  
+        span(style="color: #0DF1DB;")
+          | DASHBOARD
+
       div.btn-group.mb-3
         a.btn.btn-secondary(href="/today",class=(currentPath === '/today' ? 'active' : ''))= select1
         a.btn.btn-secondary(href="/week",class=(currentPath === '/week' ? 'active' : ''))= select2
@@ -233,7 +44,8 @@ html(lang="en")
               td|#{new Date(data.startTime).toLocaleString()}
               td|#{new Date(data.endTime).toLocaleString()}
               td
-                button.btn.btn-primary(type="button", data-toggle="modal", onclick=`openUpdateModal('${data.meetingId}')`) Update
+                if new Date(data.startTime) > new Date()
+                  button.btn.btn-primary(type="button", data-toggle="modal", onclick=`openUpdateModal('${data.meetingId}')`) Update
                 button.btn.btn-danger(onclick=`deleteFunction('${data.meetingId}')`) Delete
       #updateModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='updateModalLabel', aria-hidden='true')
         .modal-dialog.modal-dialog-centered(role='document')
@@ -251,10 +63,13 @@ html(lang="en")
                 label(for="updateStartTime") Start Time
                 input#updateStartTime.form-control(type="datetime-local", name="updateStartTime", required=true)
                 label#updateStartTimeError(for="updateStartTimeError", style="color: red;")
+                label#startTimeError(for="startTimeError", style="color: red;")
+
               .form-group
                 label(for="updateEndTime") End Time
                 input#updateEndTime.form-control(type="datetime-local", name="updateEndTime")
                 label#updateEndTimeError(for="updateEndTimeError", style="color: red;")
+                label#endTimeError(for="endTimeError", style="color: red;")
               .form-group
                 label(for="updateEmployeeId") Organizer Name
                 select#updateEmployeeId.form-select(name="updateEmployeeId")
@@ -300,10 +115,7 @@ html(lang="en")
       const startTime = document.getElementById('updateStartTime').value + ":00.000Z";
       const endTime = document.getElementById('updateEndTime').value + ":00.000Z";
       const employeeId = document.getElementById('updateEmployeeId').value;
-      console.log('After Clicking update start Time : ', startTime)
-      console.log('After Clicking update end Time : ', endTime)
-      console.log('After Clicking update start Time : ', typeof(startTime))
-      console.log('After Clicking update end Time : ', typeof(endTime))
+      
       const updatedData = {
         roomId,
         startTime,
@@ -317,73 +129,97 @@ html(lang="en")
         },
         body: JSON.stringify(updatedData)
       })
-      .then(response => {
-        if (response.ok) {
-          alert('Booking updated successfully');
+      .then(response => response.json())
+      .then(data => {
+        if (data.message) {
+          document.getElementById('updateEndTimeError').textContent = data.message;
+          console.log(data.message)
+        
+        }else {
           location.reload();
-        } else {
-          alert('Failed to update booking');
         }
       })
-      .catch(error => {
-        console.error("Error updating booking:", error);
-        alert("Internal Server Error");
+      .catch(error =>{
+        alert("Error updating booking:", error)
+        console.log("Error updating booking:", error)
       })
     }
+    
     async function openUpdateModal(meetingId) {
       currentMeetingId = meetingId;
       const meeting = await getMeetingById(meetingId);
       console.log('Meeting in ', meeting);
-      fetchRooms();
-      fetchEmployees();
+      await fetchRooms();
+      await fetchEmployees();
+      setMinDateTime()
+      document.getElementById('updateEndTimeError').textContent= ''
       if (meeting) {
-        console.log('Meeting , if meeting is true  ', meeting.data.meetingId);
-        console.log('Before Starting - Start Time : ', meeting.data.startTime);
-        console.log('Before Starting - End Time : ', meeting.data.endTime);
-        console.log('Before Starting - Start Time : ', typeof(meeting.data.startTime));
-        console.log('Before Starting - End Time : ', typeof(meeting.data.endTime));
-        console.log('<------------------------------------>');
+      
         const startTime = meeting.data.startTime.substring(0, 16);
         const endTime = meeting.data.endTime.substring(0, 16);
-        console.log('After Starting - Start Time : ', startTime);
-        console.log('After Starting - End Time : ', endTime);
-        console.log('After Starting - Start Time : ', typeof(startTime));
-        console.log('After Starting - End Time : ', typeof(endTime));
+       
         document.getElementById('updateStartTime').value = startTime;
         document.getElementById('updateEndTime').value = endTime;
+
+
+        const selectedRoomId = meeting.data.roomId;
+        const selectElementRoom = document.getElementById('updateRoomId');
+        selectElementRoom.value = selectedRoomId;
+
+
+
+        const selectedEmployeeId = meeting.data.employeeId;
+        const selectElementEmployee = document.getElementById('updateEmployeeId');
+        selectElementEmployee.value = selectedEmployeeId;
         $('#updateModal').modal('show');
       } else {
         console.error("Meeting not found");
       }
     }
     async function fetchRooms() {
-      const response = await fetch('http://127.0.0.1:3112/getRooms');
-      const rooms = await response.json();
-      const selectElement = document.getElementById('updateRoomId');
-      while (selectElement.firstChild) {
-        selectElement.removeChild(selectElement.firstChild);
-      }
-      rooms.forEach((room) => {
+        const response = await fetch('http://127.0.0.1:3112/getRooms');
+        let rooms = await response.json();
+        rooms = rooms.sort((a, b) => a.room.localeCompare(b.room));
+
+        const selectElement = document.getElementById('updateRoomId');
+        while (selectElement.firstChild) {
+          selectElement.removeChild(selectElement.firstChild);
+        }
+
+        rooms.forEach((room) => {
         const optionElement = document.createElement('option');
         optionElement.value = room.roomId;
         optionElement.textContent = room.room;
         selectElement.appendChild(optionElement);
-      })
-    }
-    async function fetchEmployees() {
-      const response = await fetch('http://127.0.0.1:3112/getEmployees');
-      const employees = await response.json();
+        });
+      }
+
+      async function fetchEmployees() {
+        const response = await fetch('http://127.0.0.1:3112/getEmployees');
+        let employees = await response.json();
+        employees = employees.sort((a, b) => {
+         const idA = a.employeeId;
+         const idB = b.employeeId;
+         const numA = parseInt(idA.match(/\d+/)[0]);
+         const numB = parseInt(idB.match(/\d+/)[0]);
+
+         if (numA < numB) return -1;
+         if (numA > numB) return 1;
+         return idA.localeCompare(idB);
+        });
+
       const selectElement = document.getElementById('updateEmployeeId');
       while (selectElement.firstChild) {
         selectElement.removeChild(selectElement.firstChild);
       }
+
       employees.forEach((employee) => {
-        const optionElement = document.createElement('option');
-        optionElement.value = employee.employeeId;
-        optionElement.textContent = employee.employeeId;
-        selectElement.appendChild(optionElement);
-      })
-    }
+      const optionElement = document.createElement('option');
+      optionElement.value = employee.employeeId;
+      optionElement.textContent = employee.employeeId;
+      selectElement.appendChild(optionElement);
+      });
+     } 
     function deleteFunction(meetingId) {
       if (confirm("Are you sure you want to delete this entry?")) {
         fetch(`/delete/${meetingId}`, {
@@ -403,4 +239,16 @@ html(lang="en")
         });
       }
     }
+      function setMinDateTime() {
+         const now = new Date();
+         const year = now.getFullYear();
+         const month = String(now.getMonth() + 1).padStart(2, '0');
+         const day = String(now.getDate()).padStart(2, '0');
+         const hour = String(now.getHours()).padStart(2, '0');
+         const minute = String(now.getMinutes()).padStart(2, '0');
+         const dateTime = `${year}-${month}-${day}T${hour}:${minute}`;
+         document.getElementById('updateStartTime').min = dateTime;
+         document.getElementById('updateEndTime').min = dateTime;
+      }
+
 

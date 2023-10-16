@@ -251,6 +251,11 @@ exports.updateBooking = async (req, res) => {
     const { startTime, endTime, roomId, employeeId } = req.body;
     const start = moment(startTime);
     const end = moment(endTime);
+    const now = moment();
+    if (start.isBefore(now) || end.isBefore(now)) {
+      return res.status(400).json({ message: "Can't update to past dates and times" });
+    }
+
     const existingBooking = await booking.findOne({ meetingId: meetingId });
     if (!existingBooking) {
       return res.status(404).json({ message: "Meeting not found" });
