@@ -1,102 +1,406 @@
-html(lang="en")
+//- html(lang="en")
   head
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
-    link(rel='stylesheet', href='/style1.css') 
-    title Document
+    link(rel='stylesheet', href='/styles.css') 
+    link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css")
+    title Vuedata Dashboard
   body
-    .nav
-      .header-left
-        img(src="https://www.vuedata.com/assets/vuedata%20light.png", alt="")
-      .header-right
-        a(href="/home", class=(currentPath === '/home' ? 'active' : ''))= nav1
-        a(href="/Booking", class=(currentPath === '/Booking' ? 'active' : ''))= nav2
-
-
-    #home
-      .header-left
-        h1= con1
-      .header-right
-        h1= con2
-        #frame
-          a(href="/today",class=(currentPath === '/today' ? 'active' : ''))= select1
-          a(href="/week",class=(currentPath === '/week' ? 'active' : ''))= select2
-          a(href="/home",class=(currentPath === '/home' ? 'active' : ''))= select3
-    #table
-      table
-        tr
-          th S.No
-          //- th Meeting ID
-          th Room Name
-          th Organizer Name
-          th Start Time
-          th End Time
-          th Actions
-        each data, index in datas 
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+      img.navbar-brand(src="https://www.vuedata.com/assets/vuedata%20light.png", alt="Vuedata Logo")
+      button.navbar-toggler(type="button", data-toggle="collapse", data-target="#navbarNav")
+        span.navbar-toggler-icon
+      div.collapse.navbar-collapse#navbarNav
+        ul.navbar-nav.ml-auto
+          li.nav-item
+            a.nav-link(href="/home", class=(currentPath === '/home' ? 'active' : ''))= nav1
+          li.nav-item
+            a.nav-link(href="/booking", class=(currentPath === '/Booking' ? 'active' : ''))= nav2
+    div.container.mt-5
+      h5.heading.text-center MEETING DASHBOARD
+      div.btn-group.mb-3
+        a.btn.btn-secondary(href="/today",class=(currentPath === '/today' ? 'active' : ''))= select1
+        a.btn.btn-secondary(href="/week",class=(currentPath === '/week' ? 'active' : ''))= select2
+        a.btn.btn-secondary(href="/month",class=(currentPath === '/month' ? 'active' : ''))= select3
+      table.table.table-dark
+        thead
           tr
-            td= index + 1 
-            //- td= data.meetingId 
-            td= data.roomName 
-            td= data.employeeName 
-            td
-              | #{new Date(data.startTime).toLocaleString()}
-            td
-              | #{new Date(data.endTime).toLocaleString()}
-            td
-              #Updatebutton(onclick=`updateFunction('${data.meetingId}')`) Update 
-              br
-              #Deletebutton(onclick=`deleteFunction('${data.meetingId}')`) Delete 
+            th S.No
+            th Room Name
+            th Organizer Name
+            th Start Time
+            th End Time
+            th Actions
+        tbody
+          each data, index in datas
+            tr
+              td= index + 1
+              td= data.roomName
+              td= data.employeeName
+              td|#{new Date(data.startTime).toLocaleString()}
+              td|#{new Date(data.endTime).toLocaleString()}
+              td
+                button.btn.btn-primary(type="button", data-toggle="modal", data-target="#updateModal") Update
+                
+                Deletebutton.btn.btn-danger(onclick=`deleteFunction('${data.meetingId}')`) Delete 
+                //- button.btn.btn-danger(type="button") Delete
+      #updateModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='updateModalLabel', aria-hidden='true')
+        .modal-dialog.modal-dialog-centered(role='document')
+          .modal-content
+            .modal-header
+              h5.modal-title#updateModalLabel Update Booking
+              button.close(type='button', data-dismiss='modal', aria-label='Close')
+                span(aria-hidden='true') &times;
+            .modal-body
+              form
+              .form-group
+                label(for="updateRoomId") Room
+                select#updateRoomId.form-select(name="updateRoomId")
+              .form-group
+                label(for="updateStartTime") Start Time
+                input#updateStartTime.form-control(type="datetime-local", name="updateStartTime", required=true)
+                label#updateStartTimeError(for="updateStartTimeError", style="color: red;")
+              .form-group
+                label(for="updateEndTime") End Time
+                input#updateEndTime.form-control(type="datetime-local", name="updateEndTime")
+                label#updateEndTimeError(for="updateEndTimeError", style="color: red;")
+              .form-group
+                label(for="updateEmployeeId") Organizer Name
+                select#updateEmployeeId.form-select(name="updateEmployeeId")
+            .modal-footer
+               button.btn.btn-third(type='button', data-dismiss='modal') Close
+               button.btn.btn-primary(type='button') Save Changes
+  script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js")
+  script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
+  script.
+      let currentMeetingId = null;
 
-    script.
+      async function getMeetingById(meetingId) {
+        try {
+          const response = await fetch(`/getMeeting/${meetingId}`);
+          if (response.ok) {
+            const data = await response.json();
+            return data;
+          } else {
+            console.error('Failed to fetch meeting.');
+            return null;
+          }
+        } catch (error) {
+          console.error('Error fetching meeting:', error);
+          return null;
+        }
+      }
+
+      function updateFunction() {
+        const roomId = document.getElementById('updateRoomId').value;
+        const startTime = document.getElementById('updateStartTime').value;
+        const endTime = document.getElementById('updateEndTime').value;
+        const employeeId = document.getElementById('updateEmployeeId').value;
+
+        const updatedData = {
+          roomId,
+          startTime,
+          endTime,
+          employeeId
+        };
+
+        fetch(`/update/${currentMeetingId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updatedData)
+        })
+        .then(response => {
+          if (response.ok) {
+            alert('Booking updated successfully');
+            location.reload();
+          } else {
+            alert('Failed to update booking');
+          }
+        })
+        .catch(error => {
+          console.error("Error updating booking:", error);
+          alert("Internal Server Error");
+        });
+      }
+
+      async function openUpdateModal(meetingId) {
+        currentMeetingId = meetingId;
+        const meeting = await getMeetingById(meetingId);
+
+        if (meeting) {
+          document.getElementById('updateRoomId').value = meeting.roomId;
+          document.getElementById('updateStartTime').value = new Date(meeting.startTime).toLocaleString();
+          document.getElementById('updateEndTime').value = new Date(meeting.endTime).toLocaleString();
+          document.getElementById('updateEmployeeId').value = meeting.employeeId;
+          $('#updateModal').modal('show');
+        } else {
+          console.error("Meeting not found");
+        }
+      }
+
+      async function fetchRooms() {
+        const response = await fetch('http://127.0.0.1:3112/getRooms');
+        const rooms = await response.json();
+        const selectElement = document.getElementById('roomId');
+        while (selectElement.firstChild) {
+          selectElement.removeChild(selectElement.firstChild);
+        }
+        rooms.forEach((room) => {
+          const optionElement = document.createElement('option');
+          optionElement.value = room.roomId;
+          optionElement.textContent = room.room;
+          selectElement.appendChild(optionElement);
+        });
+      }
+
+      async function fetchEmployees() {
+        const response = await fetch('http://127.0.0.1:3112/getEmployees');
+        const employees = await response.json();
+        const selectElement = document.getElementById('employeeId');
+        while (selectElement.firstChild) {
+          selectElement.removeChild(selectElement.firstChild);
+        }
+        employees.forEach((employee) => {
+          const optionElement = document.createElement('option');
+          optionElement.value = employee.employeeId;
+          optionElement.textContent = employee.employeeId;
+          selectElement.appendChild(optionElement);
+        });
+      }
+
       function deleteFunction(meetingId) {
         if (confirm("Are you sure you want to delete this entry?")) {
           fetch(`/delete/${meetingId}`, {
             method: 'DELETE',
           })
-            .then((response) => {
-              if (response.ok) {
-                alert("Booking deleted successfully");
-                location.reload(); 
-              } else {
-                alert("Failed to delete booking");
-              }
-            })
-            .catch((error) => {
-              console.error("Error deleting booking:", error);
-              alert("Internal Server Error");
-            });
+          .then((response) => {
+            if (response.ok) {
+              alert("Booking deleted successfully");
+              location.reload();
+            } else {
+              alert("Failed to delete booking");
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting booking:", error);
+            alert("Internal Server Error");
+          });
         }
       }
-      function updateFunction(meetingId) {    
-       const updatedInfo = prompt("Enter updated information (e.g., room name, start time, end time, etc.)");
 
-      if (updatedInfo !== null) {
-      fetch(`/update/${meetingId}`, {
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    link(rel='stylesheet', href='/styles.css')
+    link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css")
+    title Vuedata Dashboard
+  body
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+      img.navbar-brand(src="https://www.vuedata.com/assets/vuedata%20light.png", alt="Vuedata Logo")
+      button.navbar-toggler(type="button", data-toggle="collapse", data-target="#navbarNav")
+        span.navbar-toggler-icon
+      div.collapse.navbar-collapse#navbarNav
+        ul.navbar-nav.ml-auto
+          li.nav-item
+            a.nav-link(href="/home", class=(currentPath === '/home' ? 'active' : ''))= nav1
+          li.nav-item
+            a.nav-link(href="/booking", class=(currentPath === '/Booking' ? 'active' : ''))= nav2
+    div.container.mt-5
+      h5.heading.text-center MEETING DASHBOARD
+      div.btn-group.mb-3
+        a.btn.btn-secondary(href="/today",class=(currentPath === '/today' ? 'active' : ''))= select1
+        a.btn.btn-secondary(href="/week",class=(currentPath === '/week' ? 'active' : ''))= select2
+        a.btn.btn-secondary(href="/month",class=(currentPath === '/month' ? 'active' : ''))= select3
+      table.table.table-dark
+        thead
+          tr
+            th S.No
+            th Room Name
+            th Organizer Name
+            th Start Time
+            th End Time
+            th Actions
+        tbody
+          each data, index in datas
+            tr
+              td= index + 1
+              td= data.roomName
+              td= data.employeeName
+              td|#{new Date(data.startTime).toLocaleString()}
+              td|#{new Date(data.endTime).toLocaleString()}
+              td
+                button.btn.btn-primary(type="button", data-toggle="modal", onclick=`openUpdateModal('${data.meetingId}')`) Update
+                button.btn.btn-danger(onclick=`deleteFunction('${data.meetingId}')`) Delete
+      #updateModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='updateModalLabel', aria-hidden='true')
+        .modal-dialog.modal-dialog-centered(role='document')
+          .modal-content
+            .modal-header
+              h5.modal-title#updateModalLabel Update Booking
+              button.close(type='button', data-dismiss='modal', aria-label='Close')
+                span(aria-hidden='true') &times;
+            .modal-body
+              form
+              .form-group
+                label(for="updateRoomId") Room
+                select#updateRoomId.form-select(name="updateRoomId")
+              .form-group
+                label(for="updateStartTime") Start Time
+                input#updateStartTime.form-control(type="datetime-local", name="updateStartTime", required=true)
+                label#updateStartTimeError(for="updateStartTimeError", style="color: red;")
+              .form-group
+                label(for="updateEndTime") End Time
+                input#updateEndTime.form-control(type="datetime-local", name="updateEndTime")
+                label#updateEndTimeError(for="updateEndTimeError", style="color: red;")
+              .form-group
+                label(for="updateEmployeeId") Organizer Name
+                select#updateEmployeeId.form-select(name="updateEmployeeId")
+            .modal-footer
+              button.btn.btn-third(type='button', data-dismiss='modal') Close
+              button.btn.btn-primary(type='button', onclick="updateFunction()") Save Changes
+  script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js")
+  script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
+  script.
+    function parseTime(timeString) {
+     const [hours, minutes] = timeString.split(':').map(Number);
+     if (!isNaN(hours) && !isNaN(minutes)) {
+        const now = new Date();
+        now.setHours(hours);
+        now.setMinutes(minutes);
+        now.setSeconds(0);
+        console.log(now)
+        return now;
+      } else {
+        return null; 
+      }
+    }
+    let currentMeetingId = null;
+    async function getMeetingById(meetingId) {
+      try {
+        const response = await fetch(`/getMeeting/${meetingId}`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('In Function getMeetingById : ' + data.data)
+          return data;
+        } else {
+          console.error('Failed to fetch meeting.');
+          return null;
+        }
+      } catch(error) {
+        console.error('Error fetching meeting:', error);
+        return null;
+      }
+    }
+    function updateFunction() {
+      const roomId = document.getElementById('updateRoomId').value;
+      const startTime = document.getElementById('updateStartTime').value + ":00.000Z";
+      const endTime = document.getElementById('updateEndTime').value + ":00.000Z";
+      const employeeId = document.getElementById('updateEmployeeId').value;
+      console.log('After Clicking update start Time : ', startTime)
+      console.log('After Clicking update end Time : ', endTime)
+      console.log('After Clicking update start Time : ', typeof(startTime))
+      console.log('After Clicking update end Time : ', typeof(endTime))
+      const updatedData = {
+        roomId,
+        startTime,
+        endTime,
+        employeeId
+      };
+      fetch(`/update/${currentMeetingId}`, {
         method: 'PUT',
-        body: JSON.stringify({ updatedInfo }), 
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
+        body: JSON.stringify(updatedData)
       })
-      .then((response) => {
+      .then(response => {
+        if (response.ok) {
+          alert('Booking updated successfully');
+          location.reload();
+        } else {
+          alert('Failed to update booking');
+        }
+      })
+      .catch(error => {
+        console.error("Error updating booking:", error);
+        alert("Internal Server Error");
+      })
+    }
+    async function openUpdateModal(meetingId) {
+      currentMeetingId = meetingId;
+      const meeting = await getMeetingById(meetingId);
+      console.log('Meeting in ', meeting);
+      fetchRooms();
+      fetchEmployees();
+      if (meeting) {
+        console.log('Meeting , if meeting is true  ', meeting.data.meetingId);
+        console.log('Before Starting - Start Time : ', meeting.data.startTime);
+        console.log('Before Starting - End Time : ', meeting.data.endTime);
+        console.log('Before Starting - Start Time : ', typeof(meeting.data.startTime));
+        console.log('Before Starting - End Time : ', typeof(meeting.data.endTime));
+        console.log('<------------------------------------>');
+        const startTime = meeting.data.startTime.substring(0, 16);
+        const endTime = meeting.data.endTime.substring(0, 16);
+        console.log('After Starting - Start Time : ', startTime);
+        console.log('After Starting - End Time : ', endTime);
+        console.log('After Starting - Start Time : ', typeof(startTime));
+        console.log('After Starting - End Time : ', typeof(endTime));
+        document.getElementById('updateStartTime').value = startTime;
+        document.getElementById('updateEndTime').value = endTime;
+        $('#updateModal').modal('show');
+      } else {
+        console.error("Meeting not found");
+      }
+    }
+    async function fetchRooms() {
+      const response = await fetch('http://127.0.0.1:3112/getRooms');
+      const rooms = await response.json();
+      const selectElement = document.getElementById('updateRoomId');
+      while (selectElement.firstChild) {
+        selectElement.removeChild(selectElement.firstChild);
+      }
+      rooms.forEach((room) => {
+        const optionElement = document.createElement('option');
+        optionElement.value = room.roomId;
+        optionElement.textContent = room.room;
+        selectElement.appendChild(optionElement);
+      })
+    }
+    async function fetchEmployees() {
+      const response = await fetch('http://127.0.0.1:3112/getEmployees');
+      const employees = await response.json();
+      const selectElement = document.getElementById('updateEmployeeId');
+      while (selectElement.firstChild) {
+        selectElement.removeChild(selectElement.firstChild);
+      }
+      employees.forEach((employee) => {
+        const optionElement = document.createElement('option');
+        optionElement.value = employee.employeeId;
+        optionElement.textContent = employee.employeeId;
+        selectElement.appendChild(optionElement);
+      })
+    }
+    function deleteFunction(meetingId) {
+      if (confirm("Are you sure you want to delete this entry?")) {
+        fetch(`/delete/${meetingId}`, {
+          method: 'DELETE',
+        })
+        .then((response) => {
           if (response.ok) {
-            alert("Booking updated successfully");
-            location.reload(); 
+            alert("Booking deleted successfully");
+            location.reload();
           } else {
-            alert("Failed to update booking");
+            alert("Failed to delete booking");
           }
         })
         .catch((error) => {
-          console.error("Error updating booking:", error);
+          console.error("Error deleting booking:", error);
           alert("Internal Server Error");
         });
       }
-      }
-
-
-      
-      
-
-      
- 
+    }
 

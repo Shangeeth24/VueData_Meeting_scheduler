@@ -1,3 +1,175 @@
-#card-id{
-    background-image: url(https://static.vecteezy.com/system/resources/previews/017/432/605/non_2x/check-in-reception-icon-in-flat-style-booking-service-illustration-on-black-round-background-with-long-shadow-effect-hotel-reservation-circle-button-business-concept-vector.jpg);
+.heading{
+    color: #ffffff !important;
 }
+body{
+    /* color: #ffffff !important; */
+    background-color: #10161C !important;
+}
+.container.mt-5{
+    background-color: #10161C;
+}
+img{
+    width: 330px;
+    height: 40px;
+}
+.navbar {
+  background: linear-gradient(89.9341deg, rgb(19, 29, 37) 0%, rgb(26, 36, 45) 100%);
+  color: white;
+  font-family: "Inter, sans-serif";
+  font-size: 1.25rem;
+}
+
+.navbar-brand {
+  padding: 0.3125rem;
+  font-size: 1.25rem;
+  text-decoration: none;
+  white-space: nowrap;
+  margin-right: 55%;
+}
+
+.navbar-toggler-icon {
+  background-color: white;
+}
+
+.nav-link {
+  color: white;
+  padding-right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+
+.nav-link.active {
+  color: #0DF1DB !important;
+  border-bottom: 1px solid #0DF1DB !important;
+}
+
+.navbar-dark{
+    background: linear-gradient(89.9341deg, rgb(19, 29, 37) 0%, rgb(26, 36, 45) 100%);
+    color: white;    
+    font-family: var(--framer-font-family, Inter, Inter Placeholder, sans-serif);
+    font-size: 25px;
+    position: relative;
+       
+}
+.modal-footer{
+    justify-content: space-between;
+}
+  .header-left{
+    text-align: left;
+    color: #ffffff;
+  }
+  .nav-link{
+    color: #ffffff;
+    padding-right: 57px;
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+  }
+  .nav-link.active{
+    color: #0DF1DB  !important;
+    /* background-color: #0DF1DB ; */
+    border-bottom:  1px solid #0DF1DB ;
+    text-decoration: none;
+    gap: 20px !important;
+  }
+  .navbar-brand {
+    padding-top: 0.3125rem;
+    padding-bottom: 0.3125rem;
+    margin-right: 55%;
+    font-size: 1.25rem;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .btn.btn-secondary{
+    color: #fff;
+    border:  1px solid #0DF1DB;
+    background-color: transparent !important ;
+  }
+  .btn.btn-secondary.active {
+    color: #10161C !important;
+    background-color: #0DF1DB !important;
+    border:  1px solid #0DF1DB !important;
+    text-decoration: none;
+  }
+  .btn.btn-primary{
+    background-color: #0DF1DB;
+    color: #10161C;    
+    border: none;
+    padding-left: 10px;
+  }
+  .btn.btn-danger{
+    background-color: white;
+    color: #10161C;
+    border: none;   
+  }
+
+  .table.table-dark {
+    background-color: transparent;
+  }
+  .btn.btn-third {
+    color: #fff;
+    background-color: #131A21;
+   }
+  /* table */
+  th{
+    color: rgb(255, 255, 255); 
+    background: #10161C;
+    padding: 10px;
+  }
+  td{
+     text-align: center;
+     color: white;
+     background: #131A21;
+     padding: 10px;
+  }
+  
+  tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: 1px solid white !important;
+  }
+  
+  
+  table.table-dark{
+    border: 1px solid gray;
+  } 
+
+
+  input[type="text"],
+  select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  input[type="datetime-local"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+
+/* input */
+.row {
+  --bs-gutter-x: 0.15rem;
+  --bs-gutter-y: 0;
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: calc(var(--bs-gutter-y) * -1);
+  margin-right: calc(var(--bs-gutter-x) * -.5);
+  margin-left: calc(var(--bs-gutter-x) * -.5);
+  justify-content: center;
+}
+.navbar-toggler-icon {
+  background-color: transparent !important;
+}
+
+ 
+
+ 
+  
+  

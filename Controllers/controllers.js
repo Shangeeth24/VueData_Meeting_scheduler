@@ -1,20 +1,16 @@
 const booking = require('../Model/booking');
 const meetingIdGenerate = require('../Model/meetingId');
-const room = require('../Model/room')
-const employee = require('../Model/employee')
+const room = require('../Model/room');
+const employee = require('../Model/employee');
 const data = require('../Service/lookup.js');
-const moment = require("moment")
-
+const moment = require("moment");
 
 exports.insertBooking = async (req, res) => {
   try {
-    // Generate the meeting ID
     const { startTime, endTime } = req.body;
-
     const start = moment(startTime);
     const end = moment(endTime);
 
-    // Validation for overlapping bookings
     const overlappingBooking = await booking.findOne({
       $or: [
         { startTime: { $gte: start.toDate(), $lt: end.toDate() } },
@@ -22,6 +18,10 @@ exports.insertBooking = async (req, res) => {
         { startTime: { $lt: start.toDate() }, endTime: { $gt: end.toDate() } },
       ],
     });
+
+    if (end.isBefore(start)) {
+      return res.status(400).json({ message: "End time should be after start time" });
+    }
 
     if (overlappingBooking) {
       console.log("overlapping exists");
@@ -31,19 +31,10 @@ exports.insertBooking = async (req, res) => {
       return;
     }
 
-    if (end.isBefore(start)) {
-      return res
-        .status(400)
-        .json({ message: "End time should be after start time" });
-    }
-
-    // Validation for duration
     const duration = moment.duration(end.diff(start)).asHours();
 
-    if (duration > 9) {
-      return res
-        .status(400)
-        .json({ message: "Meeting duration exceeds 9 hours" });
+    if (duration > 30) {
+      return res.status(400).json({ message: "Meeting duration exceeds 30 hours" });
     }
 
     let sequence = await meetingIdGenerate.findOneAndUpdate(
@@ -78,28 +69,27 @@ exports.insertBooking = async (req, res) => {
   }
 };
 
-
-
 exports.insertBookingView = (req, res) => {
-    res.render("booking")
+  res.render("booking",{currentPath: '/Booking'});
 }
 
 exports.roomName = async (req, res) => {
-    try {
-      const rooms = await room.find({});
-      res.json(rooms);
-    } catch (err) {
-      res.status(500).send("Internal Server Error");
-    }
+  try {
+    const rooms = await room.find({});
+    res.json(rooms);
+  } catch (err) {
+    res.status(500).send("Internal Server Error");
   }
+}
+
 exports.employeeName = async (req, res) => {
-    try {
-      const employees = await employee.find({});
-      res.json(employees);
-    } catch (err) {
-      res.status(500).send("Internal Server Error");
-    }
+  try {
+    const employees = await employee.find({});
+    res.json(employees);
+  } catch (err) {
+    res.status(500).send("Internal Server Error");
   }
+}
 
 
 
@@ -124,7 +114,6 @@ exports.today = async (req, res, next) => {
     const filteredData = datas.filter(item => {
       return item.startTime >= startOfDay && item.startTime < endOfDay;
     });
-    console.log(filteredData);
 
     res.render('index', { 
       nav1: "Dashboard",
@@ -151,11 +140,13 @@ exports.week = async (req, res, next) => {
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - today.getDay());
     const endOfWeek = new Date(today);
-    endOfWeek.setDate(today.getDate() + (6 - today.getDay()) + 1); 
+    endOfWeek.setDate(today.getDate() + (6 - today.getDay()) + 1);
 
-    const filteredData = datas.filter(item => {
+    const filteredData = datas.filter((item) => {
       return item.startTime >= startOfWeek && item.startTime < endOfWeek;
     });
+
+    filteredData.sort((a, b) => a.startTime - b.startTime);
 
     res.render('index', {
       nav1: "Dashboard",
@@ -166,12 +157,13 @@ exports.week = async (req, res, next) => {
       select2: "Weekly",
       select3: "Monthly",
       datas: filteredData,
-      currentPath: '/week' 
+      currentPath: '/week',
     });
   } catch (err) {
     console.log(err);
   }
-}
+};
+
 
 //monthly
 
@@ -186,7 +178,9 @@ exports.month = async (req, res, next) => {
     const filteredData = datas.filter(item => {
       return item.startTime >= startOfMonth && item.startTime < endOfMonth;
     });
-
+    
+    filteredData.sort((a, b) => a.startTime - b.startTime);
+    
     res.render('index', {
       nav1: "Dashboard",
       nav2: "Book",
@@ -196,6 +190,31 @@ exports.month = async (req, res, next) => {
       select2: "Weekly",
       select3: "Monthly",
       datas: filteredData,
+      currentPath: '/month'
+    });
+  } 
+  catch (err) {
+    console.log(err);
+  }
+}
+
+//monthly
+
+exports.all = async (req, res, next) => {
+  try {
+    const datas = await data.getBooking();
+
+    datas.sort((a, b) => a.startTime - b.startTime);
+
+    res.render('index', {
+      nav1: "Dashboard",
+      nav2: "Book",
+      con1: "MEETING DASHBOARD",
+      con2: "Select Timeframe",
+      select1: "Today",
+      select2: "Weekly",
+      select3: "Monthly",
+      datas: datas,
       currentPath: '/home'
     });
   } 
@@ -226,6 +245,64 @@ exports.delete_entry = async (req, res) => {
   }
 };
 
+exports.updateBooking = async (req, res) => {
+  try {
+    const meetingId = req.params.id;
+    const { startTime, endTime, roomId, employeeId } = req.body;
+    const start = moment(startTime);
+    const end = moment(endTime);
+    const existingBooking = await booking.findOne({ meetingId: meetingId });
+    if (!existingBooking) {
+      return res.status(404).json({ message: "Meeting not found" });
+    }
+    const overlappingBooking = await booking.findOne({
+      meetingId: { $ne: meetingId },
+      $or: [
+        { startTime: { $gte: start.toDate(), $lt: end.toDate() } },
+        { endTime: { $gt: start.toDate(), $lte: end.toDate() } },
+        { startTime: { $lt: start.toDate() }, endTime: { $gt: end.toDate() } },
+      ],
+    });
+    if (overlappingBooking) {
+      return res.status(400).json({ message: "Overlapping booking exists" });
+    }
+    if (end.isBefore(start)) {
+      return res.status(400).json({ message: "End time should be after start time" });
+    }
+    const duration = moment.duration(end.diff(start)).asHours();
+    if (duration > 30) {
+      return res.status(400).json({ message: "Meeting duration exceeds 30 hours" });
+    }
+    const updatedBooking = await booking.findOneAndUpdate(
+      { meetingId: meetingId },
+      {
+        $set: {
+          startTime: start.toDate(),
+          endTime: end.toDate(),
+          roomId: roomId,
+          employeeId: employeeId
+        }
+      },
+      { new: true }
+    );
+    res.status(200).json(updatedBooking);
+  } catch (error) {
+    console.error("Error updating booking:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 
-
-
+exports.getMeetingById = async (req, res) => {
+  const meetingId = req.params.id;
+  try {
+    const meeting = await booking.findOne({ meetingId: meetingId });
+    if (meeting) {
+      res.json({ success: true, data: meeting });
+    } else {
+      res.status(404).json({ success: false, message: 'Meeting not found' });
+    }
+  } catch (error) {
+    console.error("Error fetching meeting by ID:", error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
