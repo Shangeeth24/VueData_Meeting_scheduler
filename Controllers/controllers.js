@@ -306,7 +306,7 @@ exports.updateBooking = async (req, res) => {
 
 function UTCtolocalFormatter(dateString) {
   const localDateString = new Date(dateString).toLocaleString("en-US", {
-    hour12: false,
+    hour12: true,
   });
 
   const inputDate = new Date(localDateString);
