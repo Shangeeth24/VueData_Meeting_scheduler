@@ -46,6 +46,8 @@ html(lang="en")
               td
                 if new Date(data.startTime) > new Date()
                   button.btn.btn-primary(type="button", data-toggle="modal", onclick=`openUpdateModal('${data.meetingId}')`) Update
+                
+
                 button.btn.btn-danger(onclick=`deleteFunction('${data.meetingId}')`) Delete
       #updateModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='updateModalLabel', aria-hidden='true')
         .modal-dialog.modal-dialog-centered(role='document')
@@ -112,8 +114,8 @@ html(lang="en")
     }
     function updateFunction() {
       const roomId = document.getElementById('updateRoomId').value;
-      const startTime = document.getElementById('updateStartTime').value + ":00.000Z";
-      const endTime = document.getElementById('updateEndTime').value + ":00.000Z";
+      const startTime = document.getElementById('updateStartTime').value 
+      const endTime = document.getElementById('updateEndTime').value 
       const employeeId = document.getElementById('updateEmployeeId').value;
       
       const updatedData = {
@@ -155,8 +157,8 @@ html(lang="en")
       document.getElementById('updateEndTimeError').textContent= ''
       if (meeting) {
       
-        const startTime = meeting.data.startTime.substring(0, 16);
-        const endTime = meeting.data.endTime.substring(0, 16);
+        const startTime = meeting.data.startTime
+        const endTime = meeting.data.endTime
        
         document.getElementById('updateStartTime').value = startTime;
         document.getElementById('updateEndTime').value = endTime;

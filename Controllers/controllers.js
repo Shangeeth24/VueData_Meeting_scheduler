@@ -1,8 +1,8 @@
-const booking = require('../Model/booking');
-const meetingIdGenerate = require('../Model/meetingId');
-const room = require('../Model/room');
-const employee = require('../Model/employee');
-const data = require('../Service/lookup.js');
+const booking = require("../Model/booking");
+const meetingIdGenerate = require("../Model/meetingId");
+const room = require("../Model/room");
+const employee = require("../Model/employee");
+const data = require("../Service/lookup.js");
 const moment = require("moment");
 
 exports.insertBooking = async (req, res) => {
@@ -20,7 +20,9 @@ exports.insertBooking = async (req, res) => {
     });
 
     if (end.isBefore(start)) {
-      return res.status(400).json({ message: "End time should be after start time" });
+      return res
+        .status(400)
+        .json({ message: "End time should be after start time" });
     }
 
     if (overlappingBooking) {
@@ -34,7 +36,9 @@ exports.insertBooking = async (req, res) => {
     const duration = moment.duration(end.diff(start)).asHours();
 
     if (duration > 30) {
-      return res.status(400).json({ message: "Meeting duration exceeds 30 hours" });
+      return res
+        .status(400)
+        .json({ message: "Meeting duration exceeds 30 hours" });
     }
 
     let sequence = await meetingIdGenerate.findOneAndUpdate(
@@ -70,8 +74,8 @@ exports.insertBooking = async (req, res) => {
 };
 
 exports.insertBookingView = (req, res) => {
-  res.render("booking",{currentPath: '/Booking'});
-}
+  res.render("booking", { currentPath: "/Booking" });
+};
 
 exports.roomName = async (req, res) => {
   try {
@@ -80,7 +84,7 @@ exports.roomName = async (req, res) => {
   } catch (err) {
     res.status(500).send("Internal Server Error");
   }
-}
+};
 
 exports.employeeName = async (req, res) => {
   try {
@@ -89,9 +93,7 @@ exports.employeeName = async (req, res) => {
   } catch (err) {
     res.status(500).send("Internal Server Error");
   }
-}
-
-
+};
 
 // async function getTodayBooking(res,req,next){
 //     let datas = await data.getBooking();
@@ -106,16 +108,18 @@ today.setHours(0, 0, 0, 0);
 exports.today = async (req, res, next) => {
   try {
     const datas = await data.getBooking();
-    
+
     const startOfDay = new Date(today);
     const endOfDay = new Date(today);
     endOfDay.setDate(endOfDay.getDate() + 1);
 
-    const filteredData = datas.filter(item => {
+    const filteredData = datas.filter((item) => {
       return item.startTime >= startOfDay && item.startTime < endOfDay;
     });
 
-    res.render('index', { 
+    filteredData.sort((a, b) => a.startTime - b.startTime);
+
+    res.render("index", {
       nav1: "Dashboard",
       nav2: "Book",
       con1: "MEETING DASHBOARD",
@@ -124,12 +128,12 @@ exports.today = async (req, res, next) => {
       select2: "Weekly",
       select3: "Monthly",
       datas: filteredData,
-      currentPath: '/today' 
+      currentPath: "/today",
     });
   } catch (err) {
     console.log(err);
   }
-}
+};
 
 // weekly
 
@@ -148,7 +152,7 @@ exports.week = async (req, res, next) => {
 
     filteredData.sort((a, b) => a.startTime - b.startTime);
 
-    res.render('index', {
+    res.render("index", {
       nav1: "Dashboard",
       nav2: "Book",
       con1: "MEETING DASHBOARD",
@@ -157,13 +161,12 @@ exports.week = async (req, res, next) => {
       select2: "Weekly",
       select3: "Monthly",
       datas: filteredData,
-      currentPath: '/week',
+      currentPath: "/week",
     });
   } catch (err) {
     console.log(err);
   }
 };
-
 
 //monthly
 
@@ -172,16 +175,16 @@ exports.month = async (req, res, next) => {
     const datas = await data.getBooking();
 
     const startOfMonth = new Date(today);
-    startOfMonth.setDate(1); 
+    startOfMonth.setDate(1);
     const endOfMonth = new Date(today);
-    endOfMonth.setMonth(endOfMonth.getMonth() + 1); 
-    const filteredData = datas.filter(item => {
+    endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+    const filteredData = datas.filter((item) => {
       return item.startTime >= startOfMonth && item.startTime < endOfMonth;
     });
-    
+
     filteredData.sort((a, b) => a.startTime - b.startTime);
-    
-    res.render('index', {
+
+    res.render("index", {
       nav1: "Dashboard",
       nav2: "Book",
       con1: "MEETING DASHBOARD",
@@ -190,13 +193,12 @@ exports.month = async (req, res, next) => {
       select2: "Weekly",
       select3: "Monthly",
       datas: filteredData,
-      currentPath: '/month'
+      currentPath: "/month",
     });
-  } 
-  catch (err) {
+  } catch (err) {
     console.log(err);
   }
-}
+};
 
 //monthly
 
@@ -206,7 +208,7 @@ exports.all = async (req, res, next) => {
 
     datas.sort((a, b) => a.startTime - b.startTime);
 
-    res.render('index', {
+    res.render("index", {
       nav1: "Dashboard",
       nav2: "Book",
       con1: "MEETING DASHBOARD",
@@ -215,33 +217,31 @@ exports.all = async (req, res, next) => {
       select2: "Weekly",
       select3: "Monthly",
       datas: datas,
-      currentPath: '/home'
+      currentPath: "/home",
     });
-  } 
-  catch (err) {
+  } catch (err) {
     console.log(err);
   }
-}
-
+};
 
 //delete
 
 exports.delete_entry = async (req, res) => {
   try {
-      const meetingId = req.params.id;
+    const meetingId = req.params.id;
 
-      const meetingToDelete = await booking.findOne({ meetingId: meetingId });
+    const meetingToDelete = await booking.findOne({ meetingId: meetingId });
 
-      if (!meetingToDelete) {
-          return res.status(404).json({ message: "Booking not found" });
-      }
+    if (!meetingToDelete) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
 
-      await meetingToDelete.deleteOne({ meetingId: meetingId });
+    await meetingToDelete.deleteOne({ meetingId: meetingId });
 
-      res.status(200).json({ message: "Booking deleted successfully" });
+    res.status(200).json({ message: "Booking deleted successfully" });
   } catch (error) {
-      console.error("Error deleting booking:", error);
-      res.status(500).json({ message: "Internal Server Error" });
+    console.error("Error deleting booking:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
@@ -249,11 +249,14 @@ exports.updateBooking = async (req, res) => {
   try {
     const meetingId = req.params.id;
     const { startTime, endTime, roomId, employeeId } = req.body;
+    console.log(startTime, endTime )
     const start = moment(startTime);
     const end = moment(endTime);
     const now = moment();
     if (start.isBefore(now) || end.isBefore(now)) {
-      return res.status(400).json({ message: "Can't update to past dates and times" });
+      return res
+        .status(400)
+        .json({ message: "Can't update to past dates and times" });
     }
 
     const existingBooking = await booking.findOne({ meetingId: meetingId });
@@ -272,11 +275,15 @@ exports.updateBooking = async (req, res) => {
       return res.status(400).json({ message: "Overlapping booking exists" });
     }
     if (end.isBefore(start)) {
-      return res.status(400).json({ message: "End time should be after start time" });
+      return res
+        .status(400)
+        .json({ message: "End time should be after start time" });
     }
     const duration = moment.duration(end.diff(start)).asHours();
     if (duration > 30) {
-      return res.status(400).json({ message: "Meeting duration exceeds 30 hours" });
+      return res
+        .status(400)
+        .json({ message: "Meeting duration exceeds 30 hours" });
     }
     const updatedBooking = await booking.findOneAndUpdate(
       { meetingId: meetingId },
@@ -285,8 +292,8 @@ exports.updateBooking = async (req, res) => {
           startTime: start.toDate(),
           endTime: end.toDate(),
           roomId: roomId,
-          employeeId: employeeId
-        }
+          employeeId: employeeId,
+        },
       },
       { new: true }
     );
@@ -297,17 +304,47 @@ exports.updateBooking = async (req, res) => {
   }
 };
 
+function UTCtolocalFormatter(dateString) {
+  const localDateString = new Date(dateString).toLocaleString("en-US", {
+    hour12: false,
+  });
+
+  const inputDate = new Date(localDateString);
+
+  const year = inputDate.getFullYear();
+
+  const month = (inputDate.getMonth() + 1).toString().padStart(2, "0");
+
+  const day = inputDate.getDate().toString().padStart(2, "0");
+
+  const hours = inputDate.getHours().toString().padStart(2, "0");
+
+  const minutes = inputDate.getMinutes().toString().padStart(2, "0");
+
+  const seconds = inputDate.getSeconds().toString().padStart(2, "0");
+
+  const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+
+  return formattedDateTime;
+}
+
 exports.getMeetingById = async (req, res) => {
   const meetingId = req.params.id;
   try {
     const meeting = await booking.findOne({ meetingId: meetingId });
+    console.log(meeting);
+    let bookingJSON = JSON.parse(JSON.stringify(meeting));
+
+    bookingJSON.startTime =UTCtolocalFormatter(bookingJSON.startTime);
+
+    bookingJSON.endTime = UTCtolocalFormatter(bookingJSON.endTime);
     if (meeting) {
-      res.json({ success: true, data: meeting });
+      res.json({ success: true, data: bookingJSON });
     } else {
-      res.status(404).json({ success: false, message: 'Meeting not found' });
+      res.status(404).json({ success: false, message: "Meeting not found" });
     }
   } catch (error) {
     console.error("Error fetching meeting by ID:", error);
-    res.status(500).json({ success: false, message: 'Internal Server Error' });
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
