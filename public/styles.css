@@ -44,6 +44,14 @@ img{
   border-bottom: 1px solid #0DF1DB !important;
 }
 
+.navbar-nav {
+  display: flex;
+  flex-direction: column;
+  padding-left: 33%;
+  margin-bottom: 0;
+  list-style: none;
+}
+
 .navbar-dark{
     background: linear-gradient(89.9341deg, rgb(19, 29, 37) 0%, rgb(26, 36, 45) 100%);
     color: white;    
