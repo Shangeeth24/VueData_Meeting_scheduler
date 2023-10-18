@@ -36,7 +36,11 @@ html(lang="en")
             th End Time
             th Actions
         tbody
-          each data, index in datas
+         - if (noRecordsFound)
+           tr
+              td(colspan="6") No records found
+         - else
+           each data, index in datas
             tr
               td= index + 1
               td= data.roomName
@@ -46,6 +50,8 @@ html(lang="en")
               td
                 if new Date(data.startTime) > new Date()
                   button.btn.btn-primary(type="button", data-toggle="modal", onclick=`openUpdateModal('${data.meetingId}')`) Update
+                
+
                 button.btn.btn-danger(onclick=`deleteFunction('${data.meetingId}')`) Delete
       #updateModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='updateModalLabel', aria-hidden='true')
         .modal-dialog.modal-dialog-centered(role='document')
@@ -80,19 +86,7 @@ html(lang="en")
   script(src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js")
   script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
   script.
-    function parseTime(timeString) {
-     const [hours, minutes] = timeString.split(':').map(Number);
-     if (!isNaN(hours) && !isNaN(minutes)) {
-        const now = new Date();
-        now.setHours(hours);
-        now.setMinutes(minutes);
-        now.setSeconds(0);
-        console.log(now)
-        return now;
-      } else {
-        return null; 
-      }
-    }
+   
     let currentMeetingId = null;
     async function getMeetingById(meetingId) {
       try {
@@ -112,8 +106,8 @@ html(lang="en")
     }
     function updateFunction() {
       const roomId = document.getElementById('updateRoomId').value;
-      const startTime = document.getElementById('updateStartTime').value + ":00.000Z";
-      const endTime = document.getElementById('updateEndTime').value + ":00.000Z";
+      const startTime = document.getElementById('updateStartTime').value 
+      const endTime = document.getElementById('updateEndTime').value 
       const employeeId = document.getElementById('updateEmployeeId').value;
       
       const updatedData = {
@@ -155,8 +149,8 @@ html(lang="en")
       document.getElementById('updateEndTimeError').textContent= ''
       if (meeting) {
       
-        const startTime = meeting.data.startTime.substring(0, 16);
-        const endTime = meeting.data.endTime.substring(0, 16);
+        const startTime = meeting.data.startTime
+        const endTime = meeting.data.endTime
        
         document.getElementById('updateStartTime').value = startTime;
         document.getElementById('updateEndTime').value = endTime;
@@ -189,6 +183,7 @@ html(lang="en")
         rooms.forEach((room) => {
         const optionElement = document.createElement('option');
         optionElement.value = room.roomId;
+        optionElement.textContent = "--Select Room--";
         optionElement.textContent = room.room;
         selectElement.appendChild(optionElement);
         });

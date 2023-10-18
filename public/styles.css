@@ -135,6 +135,10 @@ img{
     border: 1px solid gray;
   } 
 
+  .table td, .table th {
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+  }
 
   input[type="text"],
   select {
@@ -169,6 +173,39 @@ img{
 }
 
 
+th, td {
+  padding: 10px;
+  color: white;
+  background: #131A21;
+  text-align: justify;
+}
+
+@media (max-width: 768px) {
+  table {
+      width: 100%;
+  }
+
+  th, td {
+      padding: 2px;
+      font-size: 8px;
+      text-align: justify;
+  }
+  .navbar{
+    width: 100%;
+  }
+  .btn.btn-primary{
+    background-color: #0DF1DB;
+    color: #10161C;    
+    border: none;
+    font-size: 10px;
+  }
+  .btn.btn-danger{
+    background-color: white;
+    color: #10161C;
+    border: none;   
+    font-size: 10px;
+  }
+}
 
  
 

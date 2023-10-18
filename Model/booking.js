@@ -2,7 +2,9 @@ const mongoose = require('mongoose')
 
 const bookingSchema = new mongoose.Schema({
     meetingId :{
-        type : Number,        
+        type : Number,
+        // required : "Meeting ID is required ",
+        
     },
     roomId :{
         type:Number,

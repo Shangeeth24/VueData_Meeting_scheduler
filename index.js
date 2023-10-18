@@ -10,10 +10,9 @@ const routes = require("./Routes/routes.js");
 dotenv.config();
 
 app.set("view engine", "pug"); 
-app.set("views", "/Users/USER/Documents/Meeting_scheduler/views");
+app.set("views", "C:/Users/USER/Documents/VD_Kalathi/Docs/Scheduler/views");
 
-
-app.use(express.static("C:/Users/USER/Documents/Meeting_scheduler/public"));
+app.use(express.static("C:/Users/USER/Documents/VD_Kalathi/Docs/Scheduler/public"));
 
 const portNumber = process.env.PORT || 3113;
 

@@ -5,7 +5,7 @@ html(lang="en")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title Booking
     link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css")
-    link(rel="stylesheet", href="./styles.css")  
+    link(rel="stylesheet", href="./styles.css")
   body(class="bg-dark align-items-center justify-content-center", style="min-height: 100vh;")
     nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
       img.navbar-brand(src="https://www.vuedata.com/assets/vuedata%20light.png", alt="Vuedata Logo")
@@ -17,67 +17,62 @@ html(lang="en")
             a.nav-link(href="/home", class=(currentPath === '/home' ? 'active' : '')) Dashboard
           li.nav-item
             a.nav-link(href="/booking", class=(currentPath === '/Booking' ? 'active' : '')) Book
-
     div.container.my-5
       div.row.gx-5
         div.col-12.col-md-6.col-lg-6
           div(class="bg-white p-4 rounded shadow")
             div.col.p-3
               h1 MEETING BOOKING
+              label#nothing(for="nothing", style="color: white; ")
               form(id="bookingForm", onSubmit)
                 div.mb-3
                   label.form-label(for="roomId") Room
                   select#roomId.form-select(name="roomId")
-
+                    option(selected, value="")
+                div.mb-3
+                  label.form-label(for="employeeId") Employee ID
+                  select#employeeId.form-select(name="employeeId")
                 div.mb-3
                   label.form-label(for="starttime") Start Time
                   input#starttime.form-control(type="datetime-local", name="starttime", required=true)
-                  label#startTimeError(for="startTimeError", style="color: red;")
-
                 div.mb-3
                   label.form-label(for="endtime") End Time
                   input#endtime.form-control(type="datetime-local", name="endtime")
-                  label#endTimeError(for="endTimeError", style="color: red;")
-
-                div.mb-3
-                  label.form-label(for="employeeId") Organizer Name
-                  select#employeeId.form-select(name="employeeId")
-
+                  label#errorDisplay(for="errorDisplay", style="color: red; ")
                 div.row.gx-2.gy-3
                   div.col
                     button.btn.btn-primary.w-100(type="button", onclick="insertFunction()") Insert
-
                   div.col
                     button.btn.btn-primary.w-100(type="button", onclick="clearFunction()") Clear
-        
+                    label#errorDisplay(for="errorDisplay", style="color: red; ")
     script.
       function clearFunction() {
-        //- document.getElementById('meetingId').value = '';
         fetchRooms()
         fetchEmployees()
         document.getElementById('starttime').value = '';
         document.getElementById('endtime').value = '';
-        document.getElementById('endTimeError').textContent = ''
-        document.getElementById('startTimeError').textContent = ''
+        document.getElementById('errorDisplay').textContent = ''
       }
       async function fetchRooms() {
         const response = await fetch('http://127.0.0.1:3112/getRooms');
         let rooms = await response.json();
         rooms = rooms.sort((a, b) => a.room.localeCompare(b.room));
-
         const selectElement = document.getElementById('roomId');
         while (selectElement.firstChild) {
           selectElement.removeChild(selectElement.firstChild);
         }
-
+        const defaultOption = document.createElement('option');
+        defaultOption.selected = true;
+        defaultOption.value = "";
+        defaultOption.textContent = " -- Select a Room -- ";
+        selectElement.appendChild(defaultOption);
         rooms.forEach((room) => {
-        const optionElement = document.createElement('option');
-        optionElement.value = room.roomId;
-        optionElement.textContent = room.room;
-        selectElement.appendChild(optionElement);
+          const optionElement = document.createElement('option');
+          optionElement.value = room.roomId;
+          optionElement.textContent = room.room;
+          selectElement.appendChild(optionElement);
         });
       }
-
       async function fetchEmployees() {
         const response = await fetch('http://127.0.0.1:3112/getEmployees');
         let employees = await response.json();
@@ -86,53 +81,56 @@ html(lang="en")
          const idB = b.employeeId;
          const numA = parseInt(idA.match(/\d+/)[0]);
          const numB = parseInt(idB.match(/\d+/)[0]);
-
          if (numA < numB) return -1;
          if (numA > numB) return 1;
          return idA.localeCompare(idB);
         });
-
-      const selectElement = document.getElementById('employeeId');
-      while (selectElement.firstChild) {
-        selectElement.removeChild(selectElement.firstChild);
+        const selectElement = document.getElementById('employeeId');
+        while (selectElement.firstChild) {
+          selectElement.removeChild(selectElement.firstChild);
+        }
+        const defaultOptionEmployee = document.createElement('option');
+        defaultOptionEmployee.selected = true;
+        defaultOptionEmployee.value = "";
+        defaultOptionEmployee.textContent = " -- Select your Employee ID -- ";
+        selectElement.appendChild(defaultOptionEmployee);
+        employees.forEach((employee) => {
+          const optionElement = document.createElement('option');
+          optionElement.value = employee.employeeId;
+          optionElement.textContent = employee.employeeId;
+          selectElement.appendChild(optionElement);
+        });
       }
-
-      employees.forEach((employee) => {
-      const optionElement = document.createElement('option');
-      optionElement.value = employee.employeeId;
-      optionElement.textContent = employee.employeeId;
-      selectElement.appendChild(optionElement);
-      });
-     }      
- 
       async function insertFunction() {
         if (!validateDateTime()) {
            return;
         }
-        //- const meetingId = document.getElementById('meetingId').value;
         const roomId = document.getElementById('roomId').value;
         const startTime = document.getElementById('starttime').value;
         const endTime = document.getElementById('endtime').value;
         const employeeId = document.getElementById('employeeId').value;
-
+        if(!roomId) {
+          document.getElementById('errorDisplay').textContent = 'Please select a room';
+          return
+        }
+        if(!employeeId) {
+          document.getElementById('errorDisplay').textContent = 'Please select your Employee ID';
+          return
+        }
         if(!startTime){
-          document.getElementById('startTimeError').textContent = 'Start Time required';
+          document.getElementById('errorDisplay').textContent = 'Start Time required';
           return;
         }
         if(!endTime){          
-          document.getElementById('endTimeError').textContent = 'End Time required';
-          document.getElementById('startTimeError').textContent = '';
+          document.getElementById('errorDisplay').textContent = 'End Time required';
           return;
         }
-
         const formData = {
-          //- meetingId,
           roomId,
           startTime,
           endTime,
           employeeId
         };
-
         fetch("/insertBooking", {
           method: "POST",
           headers: {
@@ -143,18 +141,15 @@ html(lang="en")
         .then(response => {
           if(response.status === 400) {
             return response.json().then(data => {
-              document.getElementById('endTimeError').textContent = data.message;
-              document.getElementById('startTimeError').textContent = '';
+              document.getElementById('errorDisplay').textContent = data.message;
             })
           }
           clearFunction()
-          window.location.href="/home";
+          window.location.href = "/home";
           return response.json();
           })
           .catch((error) => console.error('Error:', error));
       }
-      
-   
       function setMinDateTime() {
          const now = new Date();
          const year = now.getFullYear();
@@ -166,27 +161,20 @@ html(lang="en")
          document.getElementById('starttime').min = dateTime;
          document.getElementById('endtime').min = dateTime;
       }
-
       function validateDateTime() {
          const startTime = new Date(document.getElementById('starttime').value);
          const endTime = new Date(document.getElementById('endtime').value);
          if (endTime <= startTime) {
-          document.getElementById('endTimeError').textContent = '';
-          document.getElementById('startTimeError').textContent = '';
-          document.getElementById('endTimeError').textContent = '"End time should be after start time."';
+          document.getElementById('errorDisplay').textContent = '"End time should be after start time."';
           return false;
          }
          const diffInHours = (endTime - startTime) / (1000 * 60 * 60);
          if (diffInHours > 30) {
-          document.getElementById('endTimeError').textContent = '';
-          document.getElementById('startTimeError').textContent = '';
-          document.getElementById('endTimeError').textContent = "Meeting can't be more than 30 hours ";
+          document.getElementById('errorDisplay').textContent = "Meeting can't be more than 30 hours ";
           return false;
          }
          return true
       }
-    
-
       window.onload = function(){
         setMinDateTime();
         fetchRooms();
